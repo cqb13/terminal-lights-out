@@ -30,11 +30,11 @@ impl Game {
             let x = rand.gen_range(0..GRID_SIZE - 1);
             let y = rand.gen_range(0..GRID_SIZE - 1);
 
-            self.toggle_light(Point::new(x, y));
+            self.toggle_light(&Point::new(x, y));
         }
     }
 
-    pub fn toggle_light(&mut self, point: Point) {
+    pub fn toggle_light(&mut self, point: &Point) {
         self.board[point.y as usize][point.x as usize] =
             Square::opposite(&self.board[point.y as usize][point.x as usize]);
 
@@ -71,7 +71,7 @@ impl Game {
         true
     }
 
-    pub fn display_with_selector(&self, point: Point) {
+    pub fn display_with_selector(&self, point: &Point) {
         for (y, row) in self.board.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
                 if y == point.y as usize && x == point.x as usize {
@@ -113,7 +113,7 @@ impl Point {
     }
 
     pub fn valid_right(&self) -> bool {
-        if self.x == GRID_SIZE {
+        if self.x == GRID_SIZE - 1 {
             false
         } else {
             true
@@ -129,7 +129,7 @@ impl Point {
     }
 
     pub fn valid_down(&self) -> bool {
-        if self.y == GRID_SIZE {
+        if self.y == GRID_SIZE - 1 {
             false
         } else {
             true
