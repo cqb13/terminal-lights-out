@@ -3,7 +3,9 @@ use super::{Board, NumberBoard, Point, GRID_SIZE};
 
 // Solves the Lights Out puzzle using Gaussian elimination and back substitution.
 pub fn solve_lights_out(mut board: &Board) {
-    let toggle_matrix = make_toggle_matrix();
+    let mut toggle_matrix = make_toggle_matrix();
+    let mut puzzle_vector = linearize_puzzle(board);
+    perform_gaussian_elimination(toggle_matrix, puzzle_vector);
 }
 
 // Creates a toggle matrix (25x25 for default game) for the given puzzle size, indicating the effect of pressing each button.
@@ -39,9 +41,25 @@ fn make_toggle_matrix(
 }
 
 // Converts the puzzle matrix into a linear vector in row-major order.
-fn linearize_puzzle() {}
+fn linearize_puzzle(board: &Board) -> Vec<bool> {
+    let mut linear_vector: Vec<bool> = Vec::new();
 
-fn perform_gaussian_elimination() {}
+    for row in board {
+        for square in row {
+            linear_vector.push(square.to_boolean());
+        }
+    }
+
+    linear_vector
+}
+
+fn perform_gaussian_elimination(
+    mut toggle_matrix: [[bool; GRID_SIZE as usize * GRID_SIZE as usize];
+        GRID_SIZE as usize * GRID_SIZE as usize],
+    mut puzzle_vector: Vec<bool>,
+) {
+
+}
 
 // Performs back substitution on a row-reduced toggle matrix to find a solution vector.
 fn back_substitute() {}

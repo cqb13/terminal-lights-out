@@ -25,18 +25,6 @@ impl Game {
         }
     }
 
-    pub fn board_to_numbers(&self) -> NumberBoard {
-        let mut number_board: NumberBoard = [[0; GRID_SIZE as usize]; GRID_SIZE as usize];
-
-        for (y, row) in self.board.iter().enumerate() {
-            for (x, square) in row.iter().enumerate() {
-                number_board[y][x] = square.to_number();
-            }
-        }
-
-        number_board
-    }
-
     pub fn generate_board(&mut self) {
         let mut rand = rand::thread_rng();
         let moves = rand.gen_range(10..30);
@@ -182,10 +170,10 @@ impl Square {
         }
     }
 
-    pub fn to_number(&self) -> i32 {
+    pub fn to_boolean(&self) -> bool {
         match self {
-            Square::Off => 0,
-            Square::On => 1,
+            Square::Off => false,
+            Square::On => true,
         }
     }
 }
