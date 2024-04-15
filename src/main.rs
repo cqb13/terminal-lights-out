@@ -1,13 +1,16 @@
 mod display;
 mod game;
+mod solver;
 
 use display::welcome;
 use game::game_loop;
 use rand::{self, Rng};
+use solver::solve_lights_out;
 
 pub const GRID_SIZE: i32 = 5;
 
 pub type Board = [[Square; GRID_SIZE as usize]; GRID_SIZE as usize];
+pub type NumberBoard = [[i32; GRID_SIZE as usize]; GRID_SIZE as usize];
 
 pub struct Game {
     board: Board,
@@ -20,6 +23,18 @@ impl Game {
             board: [[Square::Off; GRID_SIZE as usize]; GRID_SIZE as usize],
             shortest_solution: None,
         }
+    }
+
+    pub fn board_to_numbers(&self) -> NumberBoard {
+        let mut number_board: NumberBoard = [[0; GRID_SIZE as usize]; GRID_SIZE as usize];
+
+        for (y, row) in self.board.iter().enumerate() {
+            for (x, square) in row.iter().enumerate() {
+                number_board[y][x] = square.to_number();
+            }
+        }
+
+        number_board
     }
 
     pub fn generate_board(&mut self) {
@@ -94,6 +109,7 @@ impl Game {
     }
 }
 
+#[derive(Debug)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -165,6 +181,13 @@ impl Square {
             Square::On => "⦿".to_string(),
         }
     }
+
+    pub fn to_number(&self) -> i32 {
+        match self {
+            Square::Off => 0,
+            Square::On => 1,
+        }
+    }
 }
 
 impl Square {
@@ -178,9 +201,11 @@ impl Square {
 
 fn main() {
     welcome();
-
+    //TODO: add two options, play and solve(shows solution steps)
     let mut game = Game::new();
     game.generate_board();
+    game.display();
+    solve_lights_out(&game.board);
 
-    game_loop(game);
+    //game_loop(game);
 }
