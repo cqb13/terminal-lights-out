@@ -204,12 +204,17 @@ fn main() {
         "Play" => {
             let mut game = Game::new();
             game.generate_board();
+            let point_solution_vector = solve_lights_out(&game.board, false);
+            let mut shortest_solution = 0;
+            point_solution_vector.iter().flatten().for_each(|&point| {
+                shortest_solution += point;
+            });
+            game.shortest_solution = Some(shortest_solution);
             game_loop(game);
         }
         "Solve" => {
             let game = setup();
-            game.display();
-            solve_lights_out(&game.board);
+            solve_lights_out(&game.board, true);
         }
         _ => panic!("Invalid mode selected"),
     }

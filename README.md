@@ -1,36 +1,44 @@
-## Game Overview
+# Lights Out Game in Rust
 
 This game is a light toggle puzzle built in Rust. The goal is to toggle all lights off on a 5x5 grid to solve the puzzle. The game randomly generates a starting board with a number of lights turned on, and the player must find a sequence of moves to turn all lights off.
 
 ## Features
 
-- **Random Board Generation**: The game board starts with a random configuration of lights either on or off.
-- **Interactive Game Play**: Players can toggle lights on the board. Toggling a light will also toggle adjacent lights vertically and horizontally.
-- **Visual Display**: The game provides a simple console-based visual representation of the game board with the current state of each light.
+- **Grid Generation:** Randomly generates game boards.
+- **Game Solver:** Includes an algorithm to find solutions to any given game state.
+- **Interactive Play:** Allows users to play manually and see the effects of their actions in real-time.
+- **Solution Calculation:** Automatically calculates and displays the minimum number of moves required to solve the game.
 
 ## Usage
 
-1. **Starting the Game**: Run the game using a Rust compiler. Upon launch, the game will display a welcome message and the initial state of the game board.
-2. **Playing the Game**: Follow the on-screen instructions to toggle lights. The game will update the display after each move.
-3. **Winning the Game**: The game ends when all lights are turned off. A message will be displayed to congratulate the player.
+To play or solve the Lights Out game, follow these steps:
 
-## Requirements
+1. Clone the repository to your local machine.
 
-- Rust Programming Language
-- `rand` Crate for generating random numbers
+```sh
+git clone https://github.com/cqb13/terminal-lights-out.git
+```
 
-## How to Run
+2. Run the game using Cargo:
 
-Ensure you have Rust and Cargo installed on your machine. Clone the repository, navigate to the directory containing the game, and run:
-
-```bash
+```sh
 cargo run
 ```
 
+Upon running, the program will prompt you to choose between playing the game manually or solving a puzzle.
+
+### Play Mode
+
+In Play mode, you interact with the game board by toggling lights to turn off all lights. The game displays the current board state and lets you choose lights to toggle.
+
+### Solve Mode
+
+In Solve mode, the game automatically calculates and displays the solution to the entered puzzle. The solution consists of a sequence of moves (represented by numbers) to turn off all lights.
+
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute, please fork the repository and use a feature branch. Pull requests are warmly welcome.
+Contributions are welcome! If you have suggestions for improvements or find a bug, please open an issue or submit a pull request.
 
 ## License
 
-The source code for the game is available under the MIT license, allowing for personal and commercial use. See the `LICENSE` file for more details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.

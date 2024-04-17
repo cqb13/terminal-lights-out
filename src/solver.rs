@@ -6,7 +6,6 @@ use crossterm::{
     terminal,
 };
 
-
 pub fn setup() -> Game {
     let mut game = Game::new();
     let mut current_point = Point::new(2, 2);
@@ -77,10 +76,22 @@ pub fn setup() -> Game {
 }
 
 // Solves the Lights Out puzzle using Gaussian elimination and back substitution.
-pub fn solve_lights_out(mut board: &Board) {
-    let mut toggle_matrix = make_toggle_matrix();
-    let mut puzzle_vector = linearize_puzzle(board);
-    perform_gaussian_elimination(toggle_matrix, puzzle_vector);
+pub fn solve_lights_out(
+    board: &Board,
+    display: bool,
+) -> [[i32; GRID_SIZE as usize]; GRID_SIZE as usize] {
+    let toggle_matrix = make_toggle_matrix();
+    let puzzle_vector = linearize_puzzle(board);
+    perform_gaussian_elimination(toggle_matrix, puzzle_vector.clone());
+    let solution_vector = back_substitute(toggle_matrix, puzzle_vector);
+    let point_solution_vector = convert_solution_to_button_presses(solution_vector);
+
+    if display {
+        println!("Toggle the lights with numbers in any order");
+        display_point_solution_vector(point_solution_vector);
+    }
+
+    point_solution_vector
 }
 
 // Creates a toggle matrix (25x25 for default game) for the given puzzle size, indicating the effect of pressing each button.
@@ -133,11 +144,92 @@ fn perform_gaussian_elimination(
         GRID_SIZE as usize * GRID_SIZE as usize],
     mut puzzle_vector: Vec<bool>,
 ) {
+    for col in 0..GRID_SIZE as usize * GRID_SIZE as usize {
+        let mut pivot_row = None;
+        for row in col..GRID_SIZE as usize * GRID_SIZE as usize {
+            if toggle_matrix[row][col] {
+                pivot_row = Some(row);
+                break;
+            }
+        }
 
+        if let Some(pivot_row) = pivot_row {
+            toggle_matrix.swap(col, pivot_row);
+            puzzle_vector.swap(col, pivot_row);
+
+            for row in col + 1..GRID_SIZE as usize * GRID_SIZE as usize {
+                if toggle_matrix[row][col] {
+                    for i in 0..GRID_SIZE as usize * GRID_SIZE as usize {
+                        toggle_matrix[row][i] ^= toggle_matrix[col][i];
+                    }
+                    puzzle_vector[row] ^= puzzle_vector[col];
+                }
+            }
+        }
+    }
 }
 
 // Performs back substitution on a row-reduced toggle matrix to find a solution vector.
-fn back_substitute() {}
+fn back_substitute(
+    toggle_matrix: [[bool; GRID_SIZE as usize * GRID_SIZE as usize];
+        GRID_SIZE as usize * GRID_SIZE as usize],
+    puzzle_vector: Vec<bool>,
+) -> Vec<bool> {
+    let mut solution_vector = vec![false; GRID_SIZE as usize * GRID_SIZE as usize];
+
+    for row in (0..GRID_SIZE as usize * GRID_SIZE as usize).rev() {
+        if toggle_matrix[row].iter().all(|&x| x == false) && puzzle_vector[row] {
+            panic!("No solution");
+        }
+
+        let mut pivot = None;
+        for col in 0..GRID_SIZE as usize * GRID_SIZE as usize {
+            if toggle_matrix[row][col] {
+                pivot = Some(col);
+                break;
+            }
+        }
+
+        if let Some(pivot) = pivot {
+            let mut value = puzzle_vector[row];
+            for col in pivot + 1..GRID_SIZE as usize * GRID_SIZE as usize {
+                if toggle_matrix[row][col] {
+                    value ^= solution_vector[col];
+                }
+            }
+            solution_vector[pivot] = value;
+        }
+    }
+
+    solution_vector
+}
 
 // Converts a solution vector back into a list of (row, col) pairs indicating button presses.
-fn convert_solution_to_button_presses() {}
+fn convert_solution_to_button_presses(
+    solution_vector: Vec<bool>,
+) -> [[i32; GRID_SIZE as usize]; GRID_SIZE as usize] {
+    let mut point_solution_vector: [[i32; GRID_SIZE as usize]; GRID_SIZE as usize] =
+        [[0; GRID_SIZE as usize]; GRID_SIZE as usize];
+
+    for y in 0..GRID_SIZE {
+        for x in 0..GRID_SIZE {
+            let index = (y * GRID_SIZE + x) as usize;
+            if solution_vector[index] {
+                point_solution_vector[y as usize][x as usize] += 1;
+            }
+        }
+    }
+
+    point_solution_vector
+}
+
+fn display_point_solution_vector(
+    point_solution_vector: [[i32; GRID_SIZE as usize]; GRID_SIZE as usize],
+) {
+    for column in point_solution_vector {
+        for point in column {
+            print!(" {} ", point);
+        }
+        println!();
+    }
+}
