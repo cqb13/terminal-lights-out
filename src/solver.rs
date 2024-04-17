@@ -1,5 +1,80 @@
 // based on https://www.keithschwarz.com/interesting/code/?dir=lights-out
-use super::{Board, NumberBoard, Point, GRID_SIZE};
+use super::{Board, Game, Point, GRID_SIZE};
+use crate::display::refresh_display;
+use crossterm::{
+    event::{read, Event, KeyCode, KeyEvent, KeyEventKind},
+    terminal,
+};
+
+
+pub fn setup() -> Game {
+    let mut game = Game::new();
+    let mut current_point = Point::new(2, 2);
+    println!("Press 'S' to save and continue or 'Q' to quit");
+    game.display_with_selector(&current_point);
+    loop {
+        terminal::enable_raw_mode().expect("Failed to enable raw mode");
+        let event = read().unwrap();
+        match event {
+            Event::Key(KeyEvent {
+                code,
+                kind: KeyEventKind::Press,
+                ..
+            }) => match code {
+                KeyCode::Char('q') => {
+                    terminal::disable_raw_mode().expect("Failed to disable raw mode");
+                    println!("Quitting...");
+                    std::process::exit(0);
+                }
+                KeyCode::Char('s') => {
+                    terminal::disable_raw_mode().expect("Failed to disable raw mode");
+                    refresh_display(GRID_SIZE);
+                    break;
+                }
+                KeyCode::Up => {
+                    if current_point.valid_up() {
+                        current_point.y = current_point.y - 1;
+                    } else {
+                        current_point.y = GRID_SIZE - 1;
+                    }
+                }
+                KeyCode::Down => {
+                    if current_point.valid_down() {
+                        current_point.y = current_point.y + 1;
+                    } else {
+                        current_point.y = 0;
+                    }
+                }
+                KeyCode::Left => {
+                    if current_point.valid_left() {
+                        current_point.x = current_point.x - 1;
+                    } else {
+                        current_point.x = GRID_SIZE - 1;
+                    }
+                }
+                KeyCode::Right => {
+                    if current_point.valid_right() {
+                        current_point.x = current_point.x + 1;
+                    } else {
+                        current_point.x = 0;
+                    }
+                }
+                KeyCode::Enter => {
+                    terminal::disable_raw_mode().expect("Failed to disable raw mode");
+                    game.toggle_single_light(&current_point);
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+        terminal::disable_raw_mode().expect("Failed to disable raw mode");
+        refresh_display(GRID_SIZE);
+        game.display_with_selector(&current_point);
+    }
+    refresh_display(1);
+
+    game
+}
 
 // Solves the Lights Out puzzle using Gaussian elimination and back substitution.
 pub fn solve_lights_out(mut board: &Board) {

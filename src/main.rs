@@ -2,10 +2,10 @@ mod display;
 mod game;
 mod solver;
 
-use display::welcome;
+use display::{welcome, OptionSelect};
 use game::game_loop;
-use rand::{self, Rng};
-use solver::solve_lights_out;
+use rand::Rng;
+use solver::{setup, solve_lights_out};
 
 pub const GRID_SIZE: i32 = 5;
 
@@ -60,6 +60,11 @@ impl Game {
             self.board[(point.y + 1) as usize][point.x as usize] =
                 Square::opposite(&self.board[(point.y + 1) as usize][point.x as usize]);
         }
+    }
+
+    pub fn toggle_single_light(&mut self, point: &Point) {
+        self.board[point.y as usize][point.x as usize] =
+            Square::opposite(&self.board[point.y as usize][point.x as usize]);
     }
 
     pub fn solved(&self) -> bool {
@@ -189,11 +194,23 @@ impl Square {
 
 fn main() {
     welcome();
-    //TODO: add two options, play and solve(shows solution steps)
-    let mut game = Game::new();
-    game.generate_board();
-    game.display();
-    solve_lights_out(&game.board);
+    let mode = OptionSelect::new()
+        .set_title("Select mode:")
+        .add_option("Play")
+        .add_option("Solve")
+        .ask();
 
-    //game_loop(game);
+    match mode.as_str() {
+        "Play" => {
+            let mut game = Game::new();
+            game.generate_board();
+            game_loop(game);
+        }
+        "Solve" => {
+            let game = setup();
+            game.display();
+            solve_lights_out(&game.board);
+        }
+        _ => panic!("Invalid mode selected"),
+    }
 }
